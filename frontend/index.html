@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Student Management System</title>
+    <style>
+        body {
+            font-family: Arial;
+            margin: 40px;
+            background: #f9f9f9;
+        }
+        h2 {
+            color: #333;
+        }
+        input {
+            padding: 8px;
+            margin: 5px;
+        }
+        button {
+            padding: 6px 10px;
+            margin: 2px;
+            cursor: pointer;
+        }
+        table {
+            border-collapse: collapse;
+            width: 70%;
+            margin-top: 20px;
+            background: #fff;
+        }
+        th, td {
+            border: 1px solid #ccc;
+            padding: 8px;
+            text-align: center;
+        }
+        th {
+            background: #eee;
+        }
+    </style>
+</head>
+<body>
+
+<h2> Student Management System</h2>
+
+<h3>Add / Edit Student</h3>
+<input type="hidden" id="studentId">
+<input type="text" id="name" placeholder="Student Name">
+<input type="email" id="email" placeholder="Student Email">
+<button onclick="saveStudent()">Save</button>
+
+<h3>Student List</h3>
+<table>
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody id="studentTable"></tbody>
+</table>
+
+<script>
+const API_URL = "http://localhost:5055";
+
+// Load students
+function loadStudents() {
+    fetch(API_URL + "/students")
+        .then(res => res.json())
+        .then(data => {
+            const table = document.getElementById("studentTable");
+            table.innerHTML = "";
+            data.forEach(student => {
+                table.innerHTML += `
+                    <tr>
+                        <td>${student[0]}</td>
+                        <td>${student[1]}</td>
+                        <td>${student[2]}</td>
+                        <td>
+                            <button onclick="editStudent(${student[0]}, '${student[1]}', '${student[2]}')">Edit</button>
+                            <button onclick="deleteStudent(${student[0]})">Delete</button>
+                        </td>
+                    </tr>
+                `;
+            });
+        });
+}
+
+// Save student (Add / Update)
+function saveStudent() {
+    const id = document.getElementById("studentId").value;
+    const name = document.getElementById("name").value;
+    const email = document.getElementById("email").value;
+
+    if (!name || !email) {
+        alert("Please enter name and email");
+        return;
+    }
+
+    if (id) {
+        // Update
+        fetch(API_URL + "/students/" + id, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ name, email })
+        }).then(() => loadStudents());
+    } else {
+        // Add
+        fetch(API_URL + "/students", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ name, email })
+        }).then(() => loadStudents());
+    }
+
+    document.getElementById("studentId").value = "";
+    document.getElementById("name").value = "";
+    document.getElementById("email").value = "";
+}
+
+// Edit student
+function editStudent(id, name, email) {
+    document.getElementById("studentId").value = id;
+    document.getElementById("name").value = name;
+    document.getElementById("email").value = email;
+}
+
+// Delete student
+function deleteStudent(id) {
+    if (!confirm("Are you sure?")) return;
+
+    fetch(API_URL + "/students/" + id, {
+        method: "DELETE"
+    }).then(() => loadStudents());
+}
+
+// Initial load
+loadStudents();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,43 @@
+services:
+  db:
+    image: postgres:15
+    container_name: student-db
+    environment:
+      POSTGRES_DB: studentdb
+      POSTGRES_USER: studentuser
+      POSTGRES_PASSWORD: studentpass
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    networks:
+      - student-network
+
+  backend:
+    build: ./backend
+    container_name: student-backend
+    environment:
+      DB_HOST: db
+      DB_NAME: studentdb
+      DB_USER: studentuser
+      DB_PASS: studentpass
+    ports:
+      - "5055:5000"   #  
+    depends_on:
+      - db
+    networks:
+      - student-network
+
+  frontend:
+    build: ./frontend
+    container_name: student-frontend
+    ports:
+      - "8080:80"
+    depends_on:
+      - backend
+    networks:
+      - student-network
+
+volumes:
+  db_data:
+
+networks:
+  student-network:
