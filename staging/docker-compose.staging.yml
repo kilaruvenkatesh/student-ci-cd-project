@@ -1,0 +1,38 @@
+services:
+  db:
+    image: postgres:15
+    container_name: student-db-staging
+    env_file:
+      - .env.staging
+    volumes:
+      - db_data_staging:/var/lib/postgresql/data
+    networks:
+      - student-staging-network
+
+  backend:
+    image: kilaruvenkatesh/student-backend:latest
+    container_name: student-backend-staging
+    env_file:
+      - .env.staging
+    depends_on:
+      - db
+    ports:
+      - "5056:5000"
+    networks:
+      - student-staging-network
+
+  frontend:
+    image: kilaruvenkatesh/student-frontend:latest
+    container_name: student-frontend-staging
+    ports:
+      - "8081:80"
+    depends_on:
+      - backend
+    networks:
+      - student-staging-network
+
+volumes:
+  db_data_staging:
+
+networks:
+  student-staging-network:

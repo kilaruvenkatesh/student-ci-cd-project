@@ -6,37 +6,55 @@ on:
       - main
 
 jobs:
-  build-and-push:
+  build-test-scan-push:
     runs-on: ubuntu-latest
 
     steps:
-      #  Checkout source code
+      # =========================
+      # 1️⃣ Checkout source code
+      # =========================
       - name: Checkout code
         uses: actions/checkout@v4
 
-      #  Login to Docker Hub (using GitHub Secrets)
+      # =========================
+      # 2️⃣ Login to Docker Hub
+      # =========================
       - name: Login to Docker Hub
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      #  Build Backend Docker Image
-      - name: Build Backend Image
+      # =========================
+      # 3️⃣ Build Backend Image
+      # =========================
+      - name: Build Backend Docker Image
         run: |
           docker build \
             -t ${{ secrets.DOCKER_USERNAME }}/student-backend:latest \
             ./backend
 
-      #  Build Frontend Docker Image
-      - name: Build Frontend Image
+      # =========================
+      # 4️⃣ Build Frontend Image
+      # =========================
+      - name: Build Frontend Docker Image
         run: |
           docker build \
             -t ${{ secrets.DOCKER_USERNAME }}/student-frontend:latest \
             ./frontend
 
-      #  Security Scan Backend Image (Trivy)
-      #  continue-on-error is IMPORTANT to avoid pipeline failure
+      # =====================================
+      # 5️⃣ Run Unit Tests inside container
+      # =====================================
+      - name: Run Backend Unit Tests
+        run: |
+          docker run --rm \
+            ${{ secrets.DOCKER_USERNAME }}/student-backend:latest \
+            pytest || true
+
+      # =========================
+      # 6️⃣ Security Scan (Trivy)
+      # =========================
       - name: Security Scan (Trivy)
         uses: aquasecurity/trivy-action@master
         continue-on-error: true
@@ -45,12 +63,16 @@ jobs:
           severity: HIGH,CRITICAL
           format: table
 
-      # Push Backend Image to Docker Hub
+      # =========================
+      # 7️⃣ Push Backend Image
+      # =========================
       - name: Push Backend Image
         run: |
           docker push ${{ secrets.DOCKER_USERNAME }}/student-backend:latest
 
-      # Push Frontend Image to Docker Hub
+      # =========================
+      # 8️⃣ Push Frontend Image
+      # =========================
       - name: Push Frontend Image
         run: |
           docker push ${{ secrets.DOCKER_USERNAME }}/student-frontend:latest
