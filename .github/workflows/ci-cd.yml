@@ -11,13 +11,13 @@ jobs:
 
     steps:
       # =========================
-      # 1️⃣ Checkout source code
+      #  Checkout source code
       # =========================
       - name: Checkout code
         uses: actions/checkout@v4
 
       # =========================
-      # 2️⃣ Login to Docker Hub
+      #  Login to Docker Hub
       # =========================
       - name: Login to Docker Hub
         uses: docker/login-action@v3
@@ -26,7 +26,7 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
 
       # =========================
-      # 3️⃣ Build Backend Image
+      #  Build Backend Image
       # =========================
       - name: Build Backend Docker Image
         run: |
@@ -35,7 +35,7 @@ jobs:
             ./backend
 
       # =========================
-      # 4️⃣ Build Frontend Image
+      #  Build Frontend Image
       # =========================
       - name: Build Frontend Docker Image
         run: |
@@ -44,7 +44,7 @@ jobs:
             ./frontend
 
       # =====================================
-      # 5️⃣ Run Unit Tests inside container
+      #  Run Unit Tests inside container
       # =====================================
       - name: Run Backend Unit Tests
         run: |
@@ -53,7 +53,7 @@ jobs:
             pytest || true
 
       # =========================
-      # 6️⃣ Security Scan (Trivy)
+      #  Security Scan (Trivy)
       # =========================
       - name: Security Scan (Trivy)
         uses: aquasecurity/trivy-action@master
@@ -64,14 +64,14 @@ jobs:
           format: table
 
       # =========================
-      # 7️⃣ Push Backend Image
+      #  Push Backend Image
       # =========================
       - name: Push Backend Image
         run: |
           docker push ${{ secrets.DOCKER_USERNAME }}/student-backend:latest
 
       # =========================
-      # 8️⃣ Push Frontend Image
+      #  Push Frontend Image
       # =========================
       - name: Push Frontend Image
         run: |
