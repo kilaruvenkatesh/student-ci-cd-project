@@ -20,7 +20,7 @@ services:
       DB_USER: studentuser
       DB_PASS: studentpass
     ports:
-      - "5055:5000"   #  
+      - "5055:5000"   
     depends_on:
       - db
     networks:

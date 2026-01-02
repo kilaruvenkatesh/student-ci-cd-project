@@ -10,51 +10,27 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # =========================
-      #  Checkout source code
-      # =========================
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # =========================
-      #  Login to Docker Hub
-      # =========================
       - name: Login to Docker Hub
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      # =========================
-      #  Build Backend Image
-      # =========================
       - name: Build Backend Docker Image
         run: |
-          docker build \
-            -t ${{ secrets.DOCKER_USERNAME }}/student-backend:latest \
-            ./backend
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/student-backend:latest ./backend
 
-      # =========================
-      #  Build Frontend Image
-      # =========================
       - name: Build Frontend Docker Image
         run: |
-          docker build \
-            -t ${{ secrets.DOCKER_USERNAME }}/student-frontend:latest \
-            ./frontend
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/student-frontend:latest ./frontend
 
-      # =====================================
-      #  Run Unit Tests inside container
-      # =====================================
       - name: Run Backend Unit Tests
         run: |
-          docker run --rm \
-            ${{ secrets.DOCKER_USERNAME }}/student-backend:latest \
-            pytest || true
+          docker run --rm ${{ secrets.DOCKER_USERNAME }}/student-backend:latest pytest
 
-      # =========================
-      #  Security Scan (Trivy)
-      # =========================
       - name: Security Scan (Trivy)
         uses: aquasecurity/trivy-action@master
         continue-on-error: true
@@ -63,16 +39,10 @@ jobs:
           severity: HIGH,CRITICAL
           format: table
 
-      # =========================
-      #  Push Backend Image
-      # =========================
       - name: Push Backend Image
         run: |
           docker push ${{ secrets.DOCKER_USERNAME }}/student-backend:latest
 
-      # =========================
-      #  Push Frontend Image
-      # =========================
       - name: Push Frontend Image
         run: |
           docker push ${{ secrets.DOCKER_USERNAME }}/student-frontend:latest

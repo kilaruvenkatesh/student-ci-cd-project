@@ -23,7 +23,7 @@ WORKDIR /app
 COPY --from=builder /root/.local /home/appuser/.local
 
 # Copy application code
-COPY app.py .
+COPY . .
 
 # Set environment path
 ENV PATH=/home/appuser/.local/bin:$PATH
